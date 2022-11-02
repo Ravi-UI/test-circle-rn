@@ -1,43 +1,23 @@
-version: 2
+version: 2.1
 jobs:
-  node:
+  build:
+    working_directory: ~/repo
     docker:
-      - image: circleci/node:8
+      - image: circleci/node:14.18.1
     steps:
       - checkout
-      - run: npm install
-android:
-    docker:
-      - image: circleci/android:api-27-node8-alpha
-    steps:
-      - checkout
-      - run: 
-          name: Install node_modules
+      - run:
+          name: Update NPM
+          command: "sudo npm install -g npm@6.14.15"
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+      - run:
+          name: Install Dependencies
           command: npm install
-      - run: 
-          name: Assemble release build Android
-          command: cd android && ./gradlew assembleRelease
-ios:
-    macos:
-      xcode: "13.1"
-# use a --login shell so our "set Ruby version" command gets picked up for later steps
-    shell: /bin/bash --login -o pipefail
-steps:
-      - checkout
-      - run: 
-          name: Install node_modules
-          command: npm install
-      - run: 
-          name: Assemble release build IOS
-          command: xcodebuild -project ios/MOPO.xcodeproj -scheme "MOPO" -sdk iphonesimulator -destination 'platform=iOS Simulator,OS=11.4,name=iPhone X'
-workflows:
-  version: 2
-  node-android-ios:
-    jobs:
-      - node
-      - android:
-          requires:
-            - node
-      - ios:
-          requires:
-            - node
+      - save_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+          paths:
+            - ./node_modules
+      - run:
+          name: Run tests
+          command: npm run test
