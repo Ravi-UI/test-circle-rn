@@ -1,11 +1,11 @@
 import React from 'react';
-import {Button, Text, View, StyleSheet, SafeAreaView} from 'react-native';
+import {Button, Text, View, StyleSheet} from 'react-native';
 
 const App = () => {
   const [message, setMessage] = React.useState();
 
   return (
-    <SafeAreaView>
+    <View>
       <Button
         title="Say Hello"
         onPress={() => {
@@ -17,7 +17,7 @@ const App = () => {
           {message}
         </Text>
       )}
-    </SafeAreaView>
+    </View>
   );
 };
 
